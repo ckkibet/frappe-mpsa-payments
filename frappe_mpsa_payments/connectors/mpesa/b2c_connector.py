@@ -243,7 +243,7 @@ class MpesaB2CConnector(BaseAPIConnector, B2CConnector):
 
         update_map = {
             "status": "Paid" if str(result.get("ResultCode")) == "0" else "Failed",
-            "error_message": None if str(result.get("ResultCode")) == "0" else result.get("ResultDesc"),
+            "error_message": "" if str(result.get("ResultCode")) == "0" else result.get("ResultDesc"),
             "result_code": result.get("ResultCode"),
             "result_desc": result.get("ResultDesc"),
             "conversation_id": result.get("ConversationID"),
