@@ -1,3 +1,5 @@
+import random
+import time
 # Copyright (c) 2024, Navari Limited and contributors
 # For license information, please see license.txt
 
@@ -978,12 +980,24 @@ def create_b2c_request(ref, settings, b2c_disbursement):
         elif b2c_disbursement.payment_type in ("Stanbic Mobile", "Stanbic PesaLink"):
             data["payment_provider"] = "Stanbic"
 
-        b2c_request = frappe.get_doc(data)
-        b2c_request.insert(ignore_permissions=True)
-        b2c_request.submit()
+        # Parallel jobs race for the naming-series counter (MariaDB 1020/deadlock).
+        # Retry the insert only - never submit(), which dispatches the money.
+        for attempt in range(5):
+            try:
+                b2c_request = frappe.get_doc(data)
+                b2c_request.insert(ignore_permissions=True)
+                break
+            except frappe.QueryDeadlockError:
+                frappe.db.rollback()
+                if attempt == 4:
+                    raise
+                time.sleep(0.2 * (attempt + 1) + random.random() * 0.3)
+
+        # link the row before dispatch, so a fast callback finds it
         frappe.db.set_value(
             ref.doctype, ref.name, "b2c_disbursement_request", b2c_request.name
         )
+        b2c_request.submit()
 
     except Exception as e:
         frappe.log_error(
