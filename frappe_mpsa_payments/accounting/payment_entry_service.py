@@ -6,6 +6,23 @@ from frappe_mpsa_payments.frappe_mpsa_payments.api.payment_entry import (
 )
 
 
+# The party account must match the document being paid, or ERPNext rejects the entry.
+REFERENCE_PARTY_ACCOUNT_FIELD = {
+    "Expense Claim": "payable_account",
+    "Employee Advance": "advance_account",
+    "Purchase Invoice": "credit_to",
+}
+
+
+def _party_account_for(ref, fallback):
+    field = REFERENCE_PARTY_ACCOUNT_FIELD.get(ref.reference_doctype)
+    if field:
+        account = frappe.db.get_value(ref.reference_doctype, ref.reference_name, field)
+        if account:
+            return account
+    return fallback
+
+
 def create_payment_entry_for_doc(b2c_disbursement, b2c_disbursement_ref, submit=False):
     """
     Create a Payment Entry for various reference doctypes.
@@ -23,7 +40,7 @@ def create_payment_entry_for_doc(b2c_disbursement, b2c_disbursement_ref, submit=
     try:
         # Gather parameters
         party_type = b2c_disbursement_ref.party_type
-        party_account = b2c_disbursement.paid_to
+        party_account = _party_account_for(b2c_disbursement_ref, b2c_disbursement.paid_to)
         party = frappe.db.get_value(party_type, b2c_disbursement_ref.party, "name")
         amount = b2c_disbursement_ref.allocated_amount
         company = b2c_disbursement.company
@@ -58,5 +75,14 @@ def create_payment_entry_for_doc(b2c_disbursement, b2c_disbursement_ref, submit=
         )
     except Exception:
         frappe.log_error(frappe.get_traceback(), "Payment Entry Service Error")
+        try:
+            frappe.get_doc(b2c_disbursement.doctype, b2c_disbursement.name).add_comment(
+                "Comment",
+                f"Payment Entry could not be created for {b2c_disbursement_ref.reference_doctype} "
+                f"{b2c_disbursement_ref.reference_name} (M-Pesa receipt {b2c_disbursement_ref.reference_no}). "
+                "The money was sent; see Error Log 'Payment Entry Service Error' and book it manually.",
+            )
+        except Exception:
+            pass
     finally:
         frappe.set_user(current_user)
