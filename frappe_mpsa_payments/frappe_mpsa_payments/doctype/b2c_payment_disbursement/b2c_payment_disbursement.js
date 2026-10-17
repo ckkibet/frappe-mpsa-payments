@@ -673,19 +673,11 @@ frappe.ui.form.on("B2C Payment Disbursement", {
 				allocate_payment_amount: frappe.flags.allocate_payment_amount || 1,
 			},
 			callback: function (r) {
-				frm.refresh_field("references");
-				frappe.msgprint({
-					message: __("References populated and allocated successfully"),
-					title: __("Success"),
-					indicator: "green",
-				});
-			},
-			error: function (r) {
-				frappe.msgprint({
-					message: __("Error allocating amounts: " + r.message),
-					title: __("Error"),
-					indicator: "red",
-				});
+				frm.refresh_fields();
+				frappe.show_alert(
+					{ message: __("References populated and allocated"), indicator: "green" },
+					5
+				);
 			},
 		});
 	},
