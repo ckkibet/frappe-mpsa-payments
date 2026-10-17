@@ -170,7 +170,8 @@ doctype_js = {
 scheduler_events = {
     "cron": {
         "*/15 * * * *": [
-            "frappe_mpsa_payments.services.b2c_scheduler_service.update_b2c_disbursement_statuses"
+            "frappe_mpsa_payments.services.b2c_scheduler_service.update_b2c_disbursement_statuses",
+            "frappe_mpsa_payments.services.b2c_status_query_service.query_stale_b2c_requests"
         ]
     },
     "hourly": [
