@@ -48,7 +48,7 @@ def send_status_query(name: str) -> dict:
         "Initiator": c.initiator_name,
         "SecurityCredential": c.security_credential,
         "CommandID": "TransactionStatusQuery",
-        "OriginatorConversationID": req.originator_conversation_id,
+        "OriginalConversationID": req.originator_conversation_id,
         "PartyA": c.business_shortcode,
         "IdentifierType": "4",
         "ResultURL": url,
