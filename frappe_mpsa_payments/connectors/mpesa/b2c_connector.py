@@ -227,6 +227,14 @@ class MpesaB2CConnector(BaseAPIConnector, B2CConnector):
             B2C_REQUEST_DOCTYPE, {"originator_conversation_id": occ_id}
         )
 
+        if req.status in ("Paid", "Retried"):
+            # Late or duplicate callback. A 'Paid' for a Retried request means BOTH attempts may have paid.
+            frappe.log_error(
+                frappe.as_json(payload),
+                f"B2C callback ignored: {req.name} is already {req.status} (ResultCode {result.get('ResultCode')})",
+            )
+            return
+
         self.integration_request = create_request_log(
             data=payload,
             request_description="Mpesa B2C Callback",

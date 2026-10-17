@@ -3,7 +3,7 @@
 
 frappe.ui.form.on("B2C Disbursement Request", {
 	refresh(frm) {
-		if (frm.doc.status === "Failed") {
+		if (frm.doc.status === "Failed" && !frm.doc.retry_of && !frm.doc.retried_by) {
 			frm.add_custom_button(
 				"Retry Payment",
 				() => {

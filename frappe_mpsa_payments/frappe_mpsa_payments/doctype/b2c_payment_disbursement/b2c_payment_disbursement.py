@@ -158,22 +158,27 @@ class B2CPaymentDisbursement(Document):
             )
 
     @frappe.whitelist()
-    def retry_failed_payments(self) -> None:
-        """Retry failed B2C Payment References"""
-
+    def retry_failed_payments(self) -> str:
+        """Retry failed references once each. Retries and already-retried requests are skipped."""
+        retried, skipped = [], []
         for ref in self.references:
-            if ref.payment_status == "Failed" and ref.b2c_disbursement_request:
-                try:
-                    b2c_request = frappe.get_doc(
-                        B2C_REQUEST_DOCTYPE, ref.b2c_disbursement_request
-                    )
-                    if b2c_request.status == "Failed":
-                        b2c_request.retry_failed_payment()
-                except Exception as e:
-                    frappe.log_error(
-                        f"Retry error for B2C Request {ref.b2c_disbursement_request}: {str(e)}",
-                        "Retry Failed Payments Error",
-                    )
+            if ref.payment_status != "Failed" or not ref.b2c_disbursement_request:
+                continue
+            req = frappe.get_doc(B2C_REQUEST_DOCTYPE, ref.b2c_disbursement_request)
+            if req.status != "Failed" or req.get("retry_of") or req.get("retried_by"):
+                skipped.append(req.name)
+                continue
+            try:
+                retried.append(req.retry_failed_payment())
+            except Exception as e:
+                skipped.append(req.name)
+                frappe.log_error(
+                    f"Retry error for B2C Request {req.name}: {e}", "Retry Failed Payments Error"
+                )
+        msg = f"Retried {len(retried)}: {', '.join(retried) or '-'}."
+        if skipped:
+            msg += f" Not retriable: {', '.join(skipped)} (already a retry, already retried, or not failed)."
+        return msg
 
     @frappe.whitelist()
     def update_disbursement_status(self) -> None:

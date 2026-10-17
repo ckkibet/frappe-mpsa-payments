@@ -12,6 +12,8 @@
   "payment_provider",
   "phone_number",
   "originator_conversation_id",
+  "retry_of",
+  "retried_by",
   "amended_from",
   "column_break_uaay",
   "posting_date",
@@ -160,6 +162,23 @@
    "reqd": 1
   },
   {
+   "fieldname": "retry_of",
+   "fieldtype": "Link",
+   "label": "Retry Of",
+   "no_copy": 1,
+   "options": "B2C Disbursement Request",
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "retried_by",
+   "fieldtype": "Link",
+   "label": "Retried By",
+   "no_copy": 1,
+   "options": "B2C Disbursement Request",
+   "read_only": 1
+  },
+  {
    "fieldname": "column_break_uaay",
    "fieldtype": "Column Break"
   },
@@ -168,7 +187,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Not Initiated\nInitiated\nPaid\nFailed",
+   "options": "Not Initiated\nInitiated\nPaid\nFailed\nRetried",
    "read_only": 1
   },
   {
@@ -431,7 +450,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-16 06:44:32.312411",
+ "modified": "2026-10-17 21:33:45.927543",
  "modified_by": "Administrator",
  "module": "Frappe Mpsa Payments",
  "name": "B2C Disbursement Request",
