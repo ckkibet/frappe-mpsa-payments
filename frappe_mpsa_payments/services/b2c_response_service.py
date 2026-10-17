@@ -56,12 +56,26 @@ def update_b2c_reference_status(b2c_request_name: str, enqueue_next: bool = Fals
             "Failed": {"payment_status": "Failed"},
         }[req.status]
 
+        # back-fill the link: the callback can arrive before dispatch writes it
+        update["b2c_disbursement_request"] = req.name
         frappe.db.set_value("B2C Payment Disbursement Reference", ref_name, update)
         frappe.db.commit()
+
+        if req.b2c_payment_disbursement:
+            try:
+                frappe.get_doc(
+                    "B2C Payment Disbursement", req.b2c_payment_disbursement
+                ).update_disbursement_status()
+                frappe.db.commit()
+            except Exception:
+                frappe.log_error(
+                    frappe.get_traceback(),
+                    f"B2C disbursement status refresh failed: {req.b2c_payment_disbursement}",
+                )
 
     if enqueue_next and req.status == "Paid":
         from frappe_mpsa_payments.services.b2c_postprocess_service import (
             handle_successful_payment,
         )
 
-        handle_successful_payment(req.b2c_payment_disbursement, ref_name)
+        handle_successful_payment(req.b2c_payment_disbursement, ref_name, b2c_request_name=req.name)

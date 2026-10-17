@@ -14,7 +14,9 @@ from frappe_mpsa_payments.utils.doctype_names import (
 )
 
 
-def handle_successful_payment(disbursement_name: str, reference_name: str) -> None:
+def handle_successful_payment(
+    disbursement_name: str, reference_name: str, b2c_request_name: str | None = None
+) -> None:
     """
     After reference row is updated, create accounting entries:
     - Salary Slip → Journal Entry
@@ -23,7 +25,9 @@ def handle_successful_payment(disbursement_name: str, reference_name: str) -> No
     """
     ref = frappe.get_doc("B2C Payment Disbursement Reference", reference_name)
 
-    b2c_req = frappe.get_doc(B2C_REQUEST_DOCTYPE, ref.b2c_disbursement_request)
+    b2c_req = frappe.get_doc(
+        B2C_REQUEST_DOCTYPE, b2c_request_name or ref.b2c_disbursement_request
+    )
     b2c_disb = frappe.get_doc(ref.parenttype, disbursement_name)
 
     if b2c_req.mpesa_settings:
