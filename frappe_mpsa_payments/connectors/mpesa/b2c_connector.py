@@ -139,7 +139,7 @@ class MpesaB2CConnector(BaseAPIConnector, B2CConnector):
         try:
             response_code = data.get("ResponseCode")
 
-            status = "Paid" if str(response_code) == "0" else "Failed"
+            status = "Initiated" if str(response_code) == "0" else "Failed"
 
             fields = {
                 "conversation_id": data.get("ConversationID", ""),
@@ -243,6 +243,7 @@ class MpesaB2CConnector(BaseAPIConnector, B2CConnector):
 
         update_map = {
             "status": "Paid" if str(result.get("ResultCode")) == "0" else "Failed",
+            "error_message": None if str(result.get("ResultCode")) == "0" else result.get("ResultDesc"),
             "result_code": result.get("ResultCode"),
             "result_desc": result.get("ResultDesc"),
             "conversation_id": result.get("ConversationID"),
