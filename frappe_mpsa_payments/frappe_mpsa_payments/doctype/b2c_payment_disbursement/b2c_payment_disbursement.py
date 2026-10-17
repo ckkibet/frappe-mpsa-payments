@@ -40,6 +40,7 @@ class B2CPaymentDisbursement(Document):
         self.set_missing_values()
 
     def before_submit(self) -> None:
+        self.validate_b2c_commitments()
         """Initital payment trigger"""
         if self.payment_type == "Mpesa Disbursement":
             settings = self._get_mpesa_settings()
@@ -579,6 +580,13 @@ class B2CPaymentDisbursement(Document):
 
         for entry in entries:
             payable_amount = config.payable_amount_calc(entry)
+            payable_amount = round(
+                payable_amount
+                - self._b2c_unbooked_commitment(
+                    doctype, entry.get("voucher_no") or entry.get("name")
+                ),
+                2,
+            )
             if payable_amount <= 0:
                 app_logger.info(
                     f"Skipping entry due to zero or negative payable amount: {entry}"
@@ -664,6 +672,91 @@ class B2CPaymentDisbursement(Document):
             )
 
         return references
+
+    # ---- Over-commit guard -------------------------------------------------
+    # M-Pesa money already sent (or in flight) that ERPNext does not yet reflect.
+    _BOOKED_VIA_PAYMENT_ENTRY = (
+        "Employee Advance", "Expense Claim", "Purchase Invoice", "Purchase Order",
+    )
+
+    def _b2c_unbooked_commitment(self, doctype: str, name: str) -> float:
+        committed = 0.0
+        for r in frappe.get_all(
+            B2C_REQUEST_DOCTYPE,
+            filters={
+                "reference_doctype": doctype,
+                "reference_name": name,
+                "docstatus": 1,
+                "status": ["in", ["Not Initiated", "Initiated", "Paid"]],
+            },
+            fields=["amount", "status", "transaction_id", "b2c_payment_disbursement"],
+        ):
+            if r.b2c_payment_disbursement == self.name:
+                continue
+            if (
+                r.status == "Paid"
+                and r.transaction_id
+                and doctype in self._BOOKED_VIA_PAYMENT_ENTRY
+                and frappe.db.exists("Payment Entry", {"reference_no": r.transaction_id, "docstatus": 1})
+            ):
+                continue  # booked: already reflected in ERPNext's outstanding
+            committed += float(r.amount or 0)
+
+        # rows on submitted disbursements whose request has not been created yet
+        pending = frappe.db.sql(
+            """select coalesce(sum(r.allocated_amount), 0)
+               from `tabB2C Payment Disbursement Reference` r
+               join `tabB2C Payment Disbursement` d on d.name = r.parent
+               where d.docstatus = 1 and d.name != %s
+                 and r.reference_doctype = %s and r.reference_name = %s
+                 and ifnull(r.b2c_disbursement_request, '') = ''
+                 and r.payment_status in ('Not Initiated', 'Initiated')""",
+            (self.name or "", doctype, name),
+        )
+        return round(committed + float(pending[0][0] or 0), 2)
+
+    def _erp_outstanding(self, doctype: str, name: str):
+        get = frappe.db.get_value
+        if doctype == "Expense Claim":
+            v = get(doctype, name, ["grand_total", "total_amount_reimbursed"], as_dict=True)
+            return float(v.grand_total or 0) - float(v.total_amount_reimbursed or 0)
+        if doctype == "Employee Advance":
+            v = get(doctype, name, ["advance_amount", "paid_amount"], as_dict=True)
+            return float(v.advance_amount or 0) - float(v.paid_amount or 0)
+        if doctype == "Purchase Invoice":
+            return float(get(doctype, name, "outstanding_amount") or 0)
+        if doctype == "Purchase Order":
+            v = get(doctype, name, ["grand_total", "advance_paid"], as_dict=True)
+            return float(v.grand_total or 0) - float(v.advance_paid or 0)
+        if doctype == "Salary Slip":
+            return float(get(doctype, name, "net_pay") or 0)
+        return None  # unknown type: not checked
+
+    def validate_b2c_commitments(self) -> None:
+        """Block allocations that, together with M-Pesa payments already sent or
+        in flight for the same document, would exceed what is owed."""
+        totals = {}
+        for ref in self.references:
+            key = (ref.reference_doctype, ref.reference_name)
+            totals[key] = totals.get(key, 0.0) + float(ref.allocated_amount or 0)
+
+        problems = []
+        for (dt, dn), allocated in totals.items():
+            if not allocated:
+                continue
+            outstanding = self._erp_outstanding(dt, dn)
+            if outstanding is None:
+                continue
+            committed = self._b2c_unbooked_commitment(dt, dn)
+            available = round(outstanding - committed, 2)
+            if allocated > available + 0.005:
+                problems.append(
+                    _("{0} {1}: allocating {2}, but only {3} is available "
+                      "({4} outstanding in ERPNext, {5} already sent or in progress via M-Pesa).").format(
+                        dt, dn, allocated, max(available, 0), round(outstanding, 2), committed)
+                )
+        if problems:
+            frappe.throw("<br>".join(problems), title=_("Would overpay"))
 
     def _extract_party_info(self, entry: Dict, args: Dict) -> Optional[Dict]:
         """Extract party and party_type from entry or args."""
