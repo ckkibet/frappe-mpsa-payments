@@ -275,7 +275,8 @@ class MpesaB2CConnector(BaseAPIConnector, B2CConnector):
         if self.integration_request:
             update_integration_request(
                 self.integration_request.name,
-                status=req.status,
+                # Integration Request has no 'Paid' status; map it to Completed
+                status="Completed" if req.status == "Paid" else "Failed",
                 output=json.dumps(payload),
             )
         else:
