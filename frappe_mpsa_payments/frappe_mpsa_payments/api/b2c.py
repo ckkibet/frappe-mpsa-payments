@@ -27,3 +27,15 @@ def b2c_results_callback(**kwargs):
     except Exception:
         frappe.log_error(frappe.get_traceback(), "B2C Callback Error")
         raise
+
+
+@frappe.whitelist(allow_guest=True)
+def b2c_status_result_callback(**kwargs):
+    """Result of a TransactionStatusQuery sent by the stale-request job."""
+    from frappe_mpsa_payments.services.b2c_status_query_service import handle_status_result
+
+    try:
+        handle_status_result(kwargs.get("Result") or {})
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "B2C Status Result Error")
+    return "OK"
