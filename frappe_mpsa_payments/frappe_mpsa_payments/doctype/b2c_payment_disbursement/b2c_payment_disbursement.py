@@ -207,8 +207,9 @@ class B2CPaymentDisbursement(Document):
             elif total > 0:
                 new_status = "Initiated"
 
-            paid_amount = sum(
-                float(ref.allocated_amount or 0) for ref in references if ref.payment_status == "Paid"
+            paid_amount = round(
+                sum(float(ref.allocated_amount or 0) for ref in references if ref.payment_status == "Paid"),
+                2,
             )
             if float(self.paid_amount or 0) != paid_amount:
                 self.db_set("paid_amount", paid_amount, update_modified=False)
