@@ -10,6 +10,7 @@ import requests
 from frappe.utils import add_to_date, get_url, now_datetime
 
 from frappe_mpsa_payments.connectors.mpesa.b2c_connector import MpesaB2CConnector
+from frappe_mpsa_payments.utils.callback_security import callback_token
 from frappe_mpsa_payments.utils.doctype_names import B2C_REQUEST_DOCTYPE
 
 QUERY_AFTER_MINUTES = 10
@@ -43,7 +44,10 @@ def send_status_query(name: str) -> dict:
     req = frappe.get_doc(B2C_REQUEST_DOCTYPE, name)
     c = MpesaB2CConnector(req.mpesa_settings)
     token = c._get_valid_token()
-    url = f"{get_url()}/api/method/{RESULT_METHOD}"
+    url = (
+        f"{get_url()}/api/method/{RESULT_METHOD}"
+        f"?r={req.name}&t={callback_token(req.name, 'b2c-status')}"
+    )
     payload = {
         "Initiator": c.initiator_name,
         "SecurityCredential": c.security_credential,
@@ -91,12 +95,15 @@ def send_status_query(name: str) -> dict:
     return data
 
 
-def handle_status_result(result: dict) -> None:
+def handle_status_result(result: dict, expected_name: str | None = None) -> None:
     result = frappe._dict(result)
     conv = result.get("ConversationID")
     name = conv and frappe.db.get_value(B2C_REQUEST_DOCTYPE, {"status_query_id": conv}, "name")
     if not name:
-        frappe.log_error(frappe.as_json(result), "B2C status result: unknown ConversationID")
+        frappe.logger("mpesa_security").warning(f"B2C status result with unknown ConversationID {conv!r}")
+        return
+    if expected_name and name != expected_name:
+        frappe.logger("mpesa_security").warning(f"B2C status result for {name} arrived on URL for {expected_name}")
         return
 
     req = frappe.get_doc(B2C_REQUEST_DOCTYPE, name)

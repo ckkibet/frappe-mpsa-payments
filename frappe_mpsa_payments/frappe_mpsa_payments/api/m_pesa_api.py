@@ -39,6 +39,8 @@ from .process_request import process_request
 
 @frappe.whitelist(allow_guest=True)
 def balance_query_callback(**kwargs) -> None:
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     import json
 
     args = frappe._dict(kwargs)
@@ -342,6 +344,8 @@ def initiate_stk_push(**args) -> any:
 
 @frappe.whitelist(allow_guest=True)
 def stk_push_callback(**kwargs) -> None:
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     frappe.set_user("Administrator")
 
     try:
@@ -509,6 +513,8 @@ def get_token(app_key, app_secret, base_url):
 
 @frappe.whitelist(allow_guest=True)
 def confirmation(**kwargs):
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     try:
         args = frappe._dict(kwargs)
 
@@ -549,6 +555,8 @@ def confirmation(**kwargs):
 
 @frappe.whitelist(allow_guest=True)
 def validation(**kwargs):
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     context = {"ResultCode": 0, "ResultDesc": "Accepted"}
     return dict(context)
 
@@ -748,6 +756,8 @@ def get_mode_of_payment(mpesa_doc):
 @frappe.whitelist(allow_guest=True)
 def handle_transaction_status_result():
     """Handle the transaction status response from Mpesa"""
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     try:
         response = frappe.request.data
         response_data = json.loads(response)
@@ -906,6 +916,8 @@ def process_mpesa_integration_request(integration_request_name):
 @frappe.whitelist(allow_guest=True)
 def handle_queue_timeout():
     """Handle the timeout response from Mpesa."""
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     try:
         response = frappe.request.data
         response_data = json.loads(response)
@@ -933,6 +945,8 @@ def handle_queue_timeout():
 @frappe.whitelist(allow_guest=True)
 def verify_transaction(**kwargs) -> None:
     """Verify the transaction result received via callback from stk."""
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     from ..doctype.mpesa_settings.mpesa_settings import (
         fetch_param_value,
         get_completed_integration_requests_info,
