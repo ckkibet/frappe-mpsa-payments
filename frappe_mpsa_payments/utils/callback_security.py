@@ -12,8 +12,17 @@ be used to flood the database.
 import hashlib
 import hmac
 import ipaddress
+import logging
 
 import frappe
+
+
+def security_log(message: str) -> None:
+    """Write to logs/mpesa_security.log. Frappe sets app loggers to ERROR in production,
+    which would drop these, so the level is set explicitly."""
+    logger = frappe.logger("mpesa_security")
+    logger.setLevel(logging.INFO)
+    logger.warning(message)
 
 
 def _key() -> bytes:
@@ -69,5 +78,5 @@ def guard_callback() -> None:
         ok = False
     if not ok:
         path = getattr(getattr(frappe.local, "request", None), "path", "")
-        frappe.logger("mpesa_security").warning(f"Rejected callback from {ip!r} to {path}")
+        security_log(f"Rejected callback from {ip!r} to {path}")
         raise frappe.PermissionError("Not permitted")

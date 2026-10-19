@@ -10,7 +10,7 @@ import requests
 from frappe.utils import add_to_date, get_url, now_datetime
 
 from frappe_mpsa_payments.connectors.mpesa.b2c_connector import MpesaB2CConnector
-from frappe_mpsa_payments.utils.callback_security import callback_token
+from frappe_mpsa_payments.utils.callback_security import callback_token, security_log
 from frappe_mpsa_payments.utils.doctype_names import B2C_REQUEST_DOCTYPE
 
 QUERY_AFTER_MINUTES = 10
@@ -100,10 +100,10 @@ def handle_status_result(result: dict, expected_name: str | None = None) -> None
     conv = result.get("ConversationID")
     name = conv and frappe.db.get_value(B2C_REQUEST_DOCTYPE, {"status_query_id": conv}, "name")
     if not name:
-        frappe.logger("mpesa_security").warning(f"B2C status result with unknown ConversationID {conv!r}")
+        security_log(f"B2C status result with unknown ConversationID {conv!r}")
         return
     if expected_name and name != expected_name:
-        frappe.logger("mpesa_security").warning(f"B2C status result for {name} arrived on URL for {expected_name}")
+        security_log(f"B2C status result for {name} arrived on URL for {expected_name}")
         return
 
     req = frappe.get_doc(B2C_REQUEST_DOCTYPE, name)

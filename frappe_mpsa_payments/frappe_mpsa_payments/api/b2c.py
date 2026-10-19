@@ -19,11 +19,11 @@ def b2c_results_callback(**kwargs):
     Handle the B2C callback from Daraja.
     """
 
-    from frappe_mpsa_payments.utils.callback_security import guard_callback, verify_token
+    from frappe_mpsa_payments.utils.callback_security import guard_callback, security_log, verify_token
     guard_callback()
     _occ = (kwargs.get("Result") or {}).get("OriginatorConversationID")
     if not verify_token(_occ, kwargs.get("t"), "b2c"):
-        frappe.logger("mpesa_security").warning(f"Rejected B2C callback: bad/missing token for {_occ!r}")
+        security_log(f"Rejected B2C callback: bad/missing token for {_occ!r}")
         return "OK"
     try:
         result_payload = kwargs.get("Result") or {}
@@ -38,10 +38,10 @@ def b2c_results_callback(**kwargs):
 @frappe.whitelist(allow_guest=True)
 def b2c_status_result_callback(**kwargs):
     """Result of a TransactionStatusQuery sent by the stale-request job."""
-    from frappe_mpsa_payments.utils.callback_security import guard_callback, verify_token
+    from frappe_mpsa_payments.utils.callback_security import guard_callback, security_log, verify_token
     guard_callback()
     if not verify_token(kwargs.get("r"), kwargs.get("t"), "b2c-status"):
-        frappe.logger("mpesa_security").warning(f"Rejected B2C status callback: bad/missing token for {kwargs.get('r')!r}")
+        security_log(f"Rejected B2C status callback: bad/missing token for {kwargs.get('r')!r}")
         return "OK"
     from frappe_mpsa_payments.services.b2c_status_query_service import handle_status_result
 
