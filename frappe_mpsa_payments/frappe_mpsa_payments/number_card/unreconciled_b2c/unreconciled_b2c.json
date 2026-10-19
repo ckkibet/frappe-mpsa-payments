@@ -1,7 +1,7 @@
 {
  "aggregate_function_based_on": "",
  "color": "#E24C4C",
- "creation": "2026-10-19 15:49:49.743000",
+ "creation": "2026-10-19 15:50:39.198470",
  "currency": "KES",
  "docstatus": 0,
  "doctype": "Number Card",
@@ -14,7 +14,7 @@
  "is_standard": 1,
  "label": "Unreconciled B2C",
  "method": "frappe_mpsa_payments.services.dashboard_metrics.unreconciled_b2c",
- "modified": "2026-10-19 15:49:49.743000",
+ "modified": "2026-10-19 15:50:39.198470",
  "modified_by": "Administrator",
  "module": "Frappe Mpsa Payments",
  "name": "Unreconciled B2C",
