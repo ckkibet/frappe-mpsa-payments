@@ -598,7 +598,7 @@ def get_mpesa_mode_of_payment(company):
     return modes_of_payment
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_mpesa_draft_c2b_payments(
     company,
     full_name=None,
@@ -606,6 +606,7 @@ def get_mpesa_draft_c2b_payments(
     from_date=None,
     to_date=None,
 ):
+    frappe.has_permission("Mpesa C2B Payment Register", "read", throw=True)  # security: no guest access
     fields = [
         "name",
         "transid",
@@ -640,8 +641,9 @@ def get_mpesa_draft_c2b_payments(
     return payments
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_draft_pos_invoice(search_term=None):
+    frappe.has_permission("POS Invoice", "read", throw=True)  # security: no guest access
     from frappe import qb
     from frappe.query_builder import DocType
 

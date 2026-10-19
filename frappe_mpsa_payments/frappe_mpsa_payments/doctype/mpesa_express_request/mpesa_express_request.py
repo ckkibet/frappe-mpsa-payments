@@ -166,7 +166,7 @@ class MpesaExpressRequest(Document):
             handle_successful_transaction(self, settings)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def create_new_request(
     phone_number,
     payment_gateway,
@@ -178,6 +178,7 @@ def create_new_request(
     title="",
     description="",
 ):
+    frappe.has_permission("Mpesa Express Request", "create", throw=True)  # security: no guest access
     phone_number = clean_digits(phone_number)
     if (
         not phone_number
@@ -216,8 +217,9 @@ def clean_digits(v):
     return "".join(filter(str.isdigit, str(v)))
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_request_status(name):
+    frappe.has_permission("Mpesa Express Request", "read", throw=True)  # security: no guest access
     frappe.flags.ignore_permissions = True
 
     try:
@@ -244,8 +246,9 @@ def get_request_status(name):
     }
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_stkpush_defaults():
+    frappe.has_permission("Mpesa Express Request", "create", throw=True)  # security: no guest access
     gateways = frappe.get_all(
         "Payment Gateway",
         filters={"gateway_settings": "Mpesa Settings"},
@@ -269,8 +272,9 @@ def get_stkpush_defaults():
     return {"gateways": gateways, "reference_map": reference_map}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def retry_stkpush(name):
+    frappe.has_permission("Mpesa Express Request", "write", throw=True)  # security: no guest access
     doc = frappe.get_doc("Mpesa Express Request", name)
     if doc.status == "Completed":
         frappe.throw("Cannot retry a completed STK Push request.")

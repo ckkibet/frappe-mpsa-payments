@@ -5,6 +5,9 @@ import json
 
 
 def get_context(context):
+    if frappe.session.user == "Guest":  # security: page requires login
+        frappe.local.flags.redirect_location = "/login?redirect-to=/mpesa/stkpush"
+        raise frappe.Redirect
     frappe.local.response["headers"] = {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         "Pragma": "no-cache",
