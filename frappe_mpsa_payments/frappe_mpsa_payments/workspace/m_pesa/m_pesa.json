@@ -10,7 +10,7 @@
    "label": "Total Incoming (C2B)"
   }
  ],
- "content": "[{\"id\": \"fcc9e6e4f3\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Total Outgoing (B2C)\", \"col\": 6}}, {\"id\": \"d84db9b30e\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Total Incoming (C2B)\", \"col\": 6}}, {\"id\": \"d3b39252c0\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C Disbursed This Month\", \"col\": 3}}, {\"id\": \"a7e351c344\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C In Progress\", \"col\": 3}}, {\"id\": \"64128ee5d9\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C Failed This Month\", \"col\": 3}}, {\"id\": \"a49ea57082\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Total Received C2B\", \"col\": 3}}, {\"id\": \"7e8a96b9b5\", \"type\": \"card\", \"data\": {\"card_name\": \"Disbursements\", \"col\": 4}}, {\"id\": \"d17af16d63\", \"type\": \"card\", \"data\": {\"card_name\": \"Collections\", \"col\": 4}}, {\"id\": \"71b0fadff7\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}, {\"id\": \"86a7ca4935\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 4}}]",
+ "content": "[{\"id\": \"7e5c8db6b5\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Total Outgoing (B2C)\", \"col\": 6}}, {\"id\": \"915e584b4f\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Total Incoming (C2B)\", \"col\": 6}}, {\"id\": \"d3b39252c0\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C Disbursed This Month\", \"col\": 3}}, {\"id\": \"a7e351c344\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C In Progress\", \"col\": 3}}, {\"id\": \"64128ee5d9\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C Failed This Month\", \"col\": 3}}, {\"id\": \"a49ea57082\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Total Received C2B\", \"col\": 3}}, {\"id\": \"7e8a96b9b5\", \"type\": \"card\", \"data\": {\"card_name\": \"Disbursements\", \"col\": 4}}, {\"id\": \"d17af16d63\", \"type\": \"card\", \"data\": {\"card_name\": \"Collections\", \"col\": 4}}, {\"id\": \"71b0fadff7\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}, {\"id\": \"86a7ca4935\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 4}}]",
  "creation": "2026-02-06 10:57:23.544638",
  "custom_blocks": [],
  "docstatus": 0,
@@ -181,7 +181,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-10-19 15:34:17.208737",
+ "modified": "2026-10-19 15:35:12.945984",
  "modified_by": "test@navari.co.ke",
  "module": "Frappe Mpsa Payments",
  "name": "M-Pesa",
