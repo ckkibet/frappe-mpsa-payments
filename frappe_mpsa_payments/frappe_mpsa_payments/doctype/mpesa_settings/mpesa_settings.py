@@ -366,6 +366,8 @@ def get_completed_integration_requests_info(
 @frappe.whitelist(allow_guest=True)
 def process_balance_info(**kwargs) -> None:
     """Process and store account balance information received via callback from the account balance API call."""
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     account_balance_response = frappe._dict(kwargs["Result"])
 
     conversation_id = getattr(account_balance_response, "ConversationID", "")
@@ -887,6 +889,8 @@ def execute_bulk_pull_registration(settings_names: list, callback_url: str) -> N
 
 @frappe.whitelist(allow_guest=True)
 def pull_transaction_callback(**kwargs) -> dict:
+    from frappe_mpsa_payments.utils.callback_security import guard_callback
+    guard_callback()
     frappe.log_error(
         title="Mpesa Pull Transaction Callback",
         message=frappe.as_json(kwargs),

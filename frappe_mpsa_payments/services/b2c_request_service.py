@@ -1,6 +1,8 @@
 import frappe
 from frappe.utils import get_url
 
+from frappe_mpsa_payments.utils.callback_security import callback_token
+
 from frappe_mpsa_payments.connectors.factory import get_b2c_connector
 from frappe_mpsa_payments.utils.doctype_names import B2C_REQUEST_DOCTYPE
 
@@ -27,6 +29,7 @@ def create_b2c_request(doc_name: str) -> dict:
     callback_url = (
         f"{get_url()}/api/method/frappe_mpsa_payments.frappe_mpsa_payments.api.b2c.b2c_results_callback"
         f"?provider={provider}"
+        f"&t={callback_token(doc.originator_conversation_id, 'b2c')}"
     )
     connector = get_b2c_connector(provider, settings_name)
     return connector.send_b2c_request(doc, callback_url)
