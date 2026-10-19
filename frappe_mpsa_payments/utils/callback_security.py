@@ -3,8 +3,9 @@ Authentication for Safaricom callbacks.
 
 1. Per-request HMAC tokens in callback URLs (primary). Only Safaricom sees the URL,
    so a forged callback cannot present a valid token for a given request.
-2. Optional source-IP allowlist: site_config `mpesa_callback_ip_allowlist` (list of
-   CIDRs). Disabled when unset, so sandbox/local testing keeps working.
+2. Source-IP allowlist, ON by default (Safaricom's published callback IPs).
+   site_config: mpesa_callback_ip_allowlist replaces the defaults,
+   mpesa_callback_extra_ips adds to them, mpesa_callback_ip_check: 0 disables (emergency only).
 Rejections go to the `mpesa_security` log file, not the Error Log, so they cannot
 be used to flood the database.
 """
@@ -39,20 +40,31 @@ def client_ip() -> str:
     h = req.headers
     return (
         h.get("CF-Connecting-IP")
-        or (h.get("X-Forwarded-For") or "").split(",")[0].strip()
         or req.remote_addr
         or ""
     )
 
 
+SAFARICOM_CALLBACK_IPS = (
+    "196.201.214.200", "196.201.214.206", "196.201.213.114", "196.201.214.207",
+    "196.201.214.208", "196.201.213.44", "196.201.212.127", "196.201.212.138",
+    "196.201.212.129", "196.201.212.136", "196.201.212.74", "196.201.212.69",
+)
+
+
+def _allowlist() -> list:
+    conf = frappe.local.conf
+    base = conf.get("mpesa_callback_ip_allowlist") or SAFARICOM_CALLBACK_IPS
+    return list(base) + list(conf.get("mpesa_callback_extra_ips") or [])
+
+
 def guard_callback() -> None:
-    allow = frappe.local.conf.get("mpesa_callback_ip_allowlist")
-    if not allow:
+    if not frappe.local.conf.get("mpesa_callback_ip_check", 1):
         return
     ip = client_ip()
     try:
         addr = ipaddress.ip_address(ip)
-        ok = any(addr in ipaddress.ip_network(c, strict=False) for c in allow)
+        ok = any(addr in ipaddress.ip_network(c, strict=False) for c in _allowlist())
     except ValueError:
         ok = False
     if not ok:
