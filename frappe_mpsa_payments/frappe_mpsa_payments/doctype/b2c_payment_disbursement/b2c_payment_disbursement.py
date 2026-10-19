@@ -184,62 +184,54 @@ class B2CPaymentDisbursement(Document):
         return msg
 
     @frappe.whitelist()
-    def update_disbursement_status(self) -> None:
+    def update_disbursement_status(self) -> str:
         """
-        Update the B2C Payment Disbursement status based on all its child reference payment statuses.
-        Called from a background job to avoid contention and db locks.
+        Recompute status and paid_amount from the reference rows as stored in the DB.
+        Writes with db_set under a row lock (no full save), so concurrent callbacks
+        cannot collide on the document timestamp and submit-time validation is avoided.
+        Partially Paid only once every row has settled.
         """
+        frappe.db.sql(
+            "select name from `tabB2C Payment Disbursement` where name = %s for update", self.name
+        )
+        rows = frappe.get_all(
+            "B2C Payment Disbursement Reference",
+            filters={"parent": self.name, "parenttype": self.doctype},
+            fields=["payment_status", "allocated_amount"],
+        )
+        total = len(rows)
+        paid = sum(1 for r in rows if r.payment_status == "Paid")
+        failed = sum(1 for r in rows if r.payment_status == "Failed")
 
-        try:
-            references = self.references
-
-            total = len(references)
-            paid = sum(1 for ref in references if ref.payment_status == "Paid")
-            failed = sum(1 for ref in references if ref.payment_status == "Failed")
-
+        if not total:
             new_status = "Not Initiated"
-            if paid == total and total > 0:
-                new_status = "Paid"
-            elif failed == total and total > 0:
-                new_status = "Failed"
-            elif paid or failed:
-                new_status = "Partially Paid"
-            elif total > 0:
-                new_status = "Initiated"
+        elif paid == total:
+            new_status = "Paid"
+        elif failed == total:
+            new_status = "Failed"
+        elif paid + failed == total:
+            new_status = "Partially Paid"  # all settled, mixed outcome
+        else:
+            new_status = "Initiated"  # at least one row still waiting on the provider
 
-            paid_amount = round(
-                sum(float(ref.allocated_amount or 0) for ref in references if ref.payment_status == "Paid"),
-                2,
-            )
-            if float(self.paid_amount or 0) != paid_amount:
-                self.db_set("paid_amount", paid_amount, update_modified=False)
-
-            self.retry_count += 1
-            self.last_status_check = now()
-
-            if new_status != self.status:
-                old_status = self.status
-                self.status = new_status
-                self.save(ignore_permissions=True)
-                return (
-                    f"Status changed from '{old_status}' to '{new_status}'. "
-                    f"References: {paid} Paid, {failed} Failed, {total} Total. "
-                    f"Retry #{self.retry_count}."
-                )
-            else:
-                self.save(ignore_permissions=True)
-                return (
-                    f"No status change (still '{self.status}'). "
-                    f"References: {paid} Paid, {failed} Failed, {total} Total. "
-                    f"Retry #{self.retry_count}."
-                )
-
-        except Exception:
-            frappe.log_error(
-                frappe.get_traceback(),
-                f"Error updating B2C Payment Disbursement status for {self.name}",
-            )
-            frappe.throw("Failed to update status")
+        paid_amount = round(
+            sum(float(r.allocated_amount or 0) for r in rows if r.payment_status == "Paid"), 2
+        )
+        old_status = self.status
+        self.db_set(
+            {
+                "status": new_status,
+                "paid_amount": paid_amount,
+                "retry_count": (self.retry_count or 0) + 1,
+                "last_status_check": now(),
+            },
+            update_modified=False,
+            notify=True,
+        )
+        return (
+            f"Status '{old_status}' -> '{new_status}'. "
+            f"References: {paid} Paid, {failed} Failed, {total} Total."
+        )
 
     @frappe.whitelist()
     def get_outstanding_reference_documents(self, args: Dict) -> List[Dict]:
