@@ -1,7 +1,12 @@
 {
  "app": "frappe_mpsa_payments",
- "charts": [],
- "content": "[{\"id\":\"ekY52uyn-y\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h2\\\">M-Pesa</span>\",\"col\":12}},{\"id\":\"qHXNVzXKrH\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"rrN9pF1GWL\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Disbursed B2C\",\"col\":4}},{\"id\":\"0FnTZAj5IO\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Received C2B\",\"col\":4}},{\"id\":\"k9y-oZgrd7\",\"type\":\"paragraph\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Shortcuts</span>\",\"col\":12}},{\"id\":\"zwiaFsYc_J\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Mpesa Settings\",\"col\":4}},{\"id\":\"MSjhmCMTmv\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Integration Request\",\"col\":4}},{\"id\":\"inKwMLELec\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Error Log\",\"col\":4}},{\"id\":\"IhphJ-RpsY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"STK Push\",\"col\":4}},{\"id\":\"18H7RKlh-4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"B2c Payment Disbursement\",\"col\":4}},{\"id\":\"_yx3szrm6Y\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Mpesa Payment Reconciliation\",\"col\":4}},{\"id\":\"gTR6pW3uWs\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"E7N0e_6GyY\",\"type\":\"card\",\"data\":{\"card_name\":\"Configuration\",\"col\":4}},{\"id\":\"y8Z7Otj7pW\",\"type\":\"card\",\"data\":{\"card_name\":\"Payments\",\"col\":4}},{\"id\":\"hRwQWfCW7q\",\"type\":\"card\",\"data\":{\"card_name\":\"Disbursements\",\"col\":4}},{\"id\":\"T3GGagVESe\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}}]",
+ "charts": [
+  {
+   "chart_name": "Total Outgoing (B2C)",
+   "label": "Total Outgoing (B2C)"
+  }
+ ],
+ "content": "[{\"id\": \"046c667a64\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Total Outgoing (B2C)\", \"col\": 12}}, {\"id\": \"d3b39252c0\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C Disbursed This Month\", \"col\": 3}}, {\"id\": \"a7e351c344\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C In Progress\", \"col\": 3}}, {\"id\": \"64128ee5d9\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"B2C Failed This Month\", \"col\": 3}}, {\"id\": \"a49ea57082\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Total Received C2B\", \"col\": 3}}, {\"id\": \"7e8a96b9b5\", \"type\": \"card\", \"data\": {\"card_name\": \"Disbursements\", \"col\": 4}}, {\"id\": \"d17af16d63\", \"type\": \"card\", \"data\": {\"card_name\": \"Collections\", \"col\": 4}}, {\"id\": \"71b0fadff7\", \"type\": \"card\", \"data\": {\"card_name\": \"Reports\", \"col\": 4}}, {\"id\": \"86a7ca4935\", \"type\": \"card\", \"data\": {\"card_name\": \"Setup\", \"col\": 4}}]",
  "creation": "2026-02-06 10:57:23.544638",
  "custom_blocks": [],
  "docstatus": 0,
@@ -18,57 +23,8 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Configuration",
-   "link_count": 4,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mpesa Settings",
-   "link_count": 0,
-   "link_to": "Mpesa Settings",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mpesa Public Key Certificate",
-   "link_count": 0,
-   "link_to": "Mpesa Public Key Certificate",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Mpesa C2B Payment Register URL",
-   "link_count": 0,
-   "link_to": "Mpesa C2B Payment Register URL",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Payment Gateway",
-   "link_count": 0,
-   "link_to": "Payment Gateway",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Disbursements",
-   "link_count": 2,
+   "link_count": 1,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -86,17 +42,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "B2C Disbursement Request",
-   "link_count": 0,
-   "link_to": "B2C Disbursement Request",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Payments",
+   "label": "Collections",
    "link_count": 3,
    "link_type": "DocType",
    "onboard": 0,
@@ -144,9 +90,9 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "STK Push Request Status",
+   "label": "B2C Disbursement Summary",
    "link_count": 0,
-   "link_to": "STK Push Request Status",
+   "link_to": "B2C Disbursement Summary",
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
@@ -174,22 +120,79 @@
   {
    "hidden": 0,
    "is_query_report": 1,
-   "label": "B2C Disbursement Summary",
+   "label": "STK Push Request Status",
    "link_count": 0,
-   "link_to": "B2C Disbursement Summary",
+   "link_to": "STK Push Request Status",
    "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Setup",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mpesa Settings",
+   "link_count": 0,
+   "link_to": "Mpesa Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mpesa Public Key Certificate",
+   "link_count": 0,
+   "link_to": "Mpesa Public Key Certificate",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Mpesa C2B Payment Register URL",
+   "link_count": 0,
+   "link_to": "Mpesa C2B Payment Register URL",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payment Gateway",
+   "link_count": 0,
+   "link_to": "Payment Gateway",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2026-02-06 11:23:36.498261",
+ "modified": "2026-10-19 15:13:26.583419",
  "modified_by": "test@navari.co.ke",
  "module": "Frappe Mpsa Payments",
  "name": "M-Pesa",
  "number_cards": [
   {
-   "label": "Total Disbursed B2C",
-   "number_card_name": "Total Disbursed B2C"
+   "label": "B2C Disbursed This Month",
+   "number_card_name": "B2C Disbursed This Month"
+  },
+  {
+   "label": "B2C In Progress",
+   "number_card_name": "B2C In Progress"
+  },
+  {
+   "label": "B2C Failed This Month",
+   "number_card_name": "B2C Failed This Month"
   },
   {
    "label": "Total Received C2B",
@@ -202,55 +205,7 @@
  "quick_lists": [],
  "roles": [],
  "sequence_id": 49.0,
- "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Mpesa Settings",
-   "link_to": "Mpesa Settings",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "STK Push",
-   "link_to": "Mpesa Express Request",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Integration Request",
-   "link_to": "Integration Request",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "B2c Payment Disbursement",
-   "link_to": "B2C Payment Disbursement",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Error Log",
-   "link_to": "Error Log",
-   "stats_filter": "[]",
-   "type": "DocType"
-  },
-  {
-   "color": "Grey",
-   "doc_view": "List",
-   "label": "Mpesa Payment Reconciliation",
-   "link_to": "Mpesa Payment Reconciliation",
-   "type": "DocType"
-  }
- ],
+ "shortcuts": [],
  "title": "M-Pesa",
  "type": "Workspace"
 }
