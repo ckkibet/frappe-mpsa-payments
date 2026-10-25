@@ -1,0 +1,10 @@
+name: Deploy
+on:
+  push:
+    branches: [geocon-fixes]
+jobs:
+  deploy:
+    runs-on: dc1-host
+    steps:
+      - name: Deploy to UAT
+        run: flock /tmp/erpnext-deploy.lock "$HOME/gitops/deploy.sh"
