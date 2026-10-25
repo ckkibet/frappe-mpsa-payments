@@ -9,6 +9,7 @@ __pycache__.DS_Store
 *.egg-info
 *.swp
 *.rest
+*.idea
 
 *.pem
 # *.cer
